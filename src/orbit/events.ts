@@ -37,10 +37,8 @@ export interface OrbitBackend {
   subscribe(listener: (event: OrbitEvent) => void): () => void
 
   submit(text: string, via: InputChannel): void
-  /** `phrase` exists only so the mock can simulate dictation; the real STT ignores it. */
   startListening(phrase?: string): void
   stopListening(): void
-  /** Esc / Stop: halt whatever is in flight. */
   cancel(): void
   resolvePermission(id: string, granted: boolean): void
   retry(): void

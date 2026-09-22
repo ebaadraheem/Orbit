@@ -5,6 +5,19 @@
   "description": "Orbit — a private, local-first computer assistant",
   "main": "electron/main.cjs",
   "type": "module",
+  "build": {
+    "appId": "com.yourname.orbit",
+    "productName": "Orbit",
+    "win": {
+      "icon": "build/icon.ico"
+    },
+    "mac": {
+      "icon": "build/icon.icns"
+    },
+    "linux": {
+      "icon": "build/icons"
+    }
+  },
   "scripts": {
     "dev": "concurrently -k -n vite,electron -c cyan,magenta \"vite\" \"npm:dev:electron\"",
     "dev:electron": "wait-on tcp:5173 && cross-env NODE_ENV=development electron .",

@@ -76,7 +76,7 @@ export function IconButton({
         aria-label={label}
         aria-pressed={active}
         className={cn(
-          "no-drag inline-flex items-center justify-center rounded-md transition-colors duration-150",
+          "no-drag inline-flex items-center justify-center rounded-md transition-colors duration-150 focus:outline-none",
           size === "sm" ? "h-7 w-7" : "h-8 w-8",
           active
             ? "bg-[var(--raised)] text-[var(--accent)]"
@@ -126,6 +126,7 @@ export function Toggle({ checked, onChange, label, disabled }: ToggleProps) {
 
 /* --------------------------------------------------------------- Tooltip */
 
+
 export function Tooltip({
   content,
   children,
@@ -136,18 +137,37 @@ export function Tooltip({
   side?: "bottom" | "top" | "right";
 }) {
   const [open, setOpen] = useState(false);
-  const [pos, setPos] = useState({ top: 0, left: 0 });
+
+  const [pos, setPos] = useState({ top: 0, left: 0, transform: "translateX(-50%)" });
   const ref = useRef<HTMLSpanElement>(null);
 
   const show = useCallback(() => {
     const el = ref.current?.firstElementChild;
     if (!el) return;
     const r = el.getBoundingClientRect();
+
+    // Default centering logic
+    let left = r.left + r.width / 2;
+    let transform = "translateX(-50%)";
+
+    if (side !== "right") {
+      if (left > window.innerWidth - 100) {
+        // If too close to the right edge, pin the tooltip's right edge to the button's right edge
+        left = r.right;
+        transform = "translateX(-100%)";
+      } else if (left < 100) {
+        // If too close to the left edge, pin the tooltip's left edge to the button's left edge
+        left = r.left;
+        transform = "none";
+      }
+    }
+
     const offsets = {
-      bottom: { top: r.bottom + 8, left: r.left + r.width / 2 },
-      top: { top: r.top - 30, left: r.left + r.width / 2 },
-      right: { top: r.top + r.height / 2 - 12, left: r.right + 10 },
+      bottom: { top: r.bottom + 8, left, transform },
+      top: { top: r.top - 30, left, transform },
+      right: { top: r.top + r.height / 2 - 12, left: r.right + 10, transform: "none" },
     };
+    
     setPos(offsets[side]);
     setOpen(true);
   }, [side]);
@@ -171,9 +191,9 @@ export function Tooltip({
             style={{
               top: pos.top,
               left: pos.left,
-              transform: side === "right" ? "none" : "translateX(-50%)",
+              transform: pos.transform, 
             }}
-            className="animate-fade pointer-events-none fixed z-[90] whitespace-nowrap rounded-md border border-[var(--line-strong)] bg-[#000] px-2 py-1 text-[11.5px] text-[var(--text-dim)] shadow-lg"
+            className="animate-fade pointer-events-none fixed z-[90] w-max max-w-[250px] rounded-md border border-[var(--line-strong)] bg-[#000] px-2 py-1 text-[11.5px] text-[var(--text-dim)] shadow-lg"
           >
             {content}
           </div>,
@@ -205,7 +225,6 @@ export function Modal({
   useEffect(() => {
     if (!open) return;
     const previous = document.activeElement as HTMLElement | null;
-    // Focus the dialog so screen readers and the keyboard land inside it.
     requestAnimationFrame(() => ref.current?.focus());
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -273,7 +292,7 @@ export function Popover({
   label,
 }: {
   trigger: (props: { open: boolean; toggle(): void }) => React.ReactNode;
-  children: ReactNode;
+  children: React.ReactNode | ((props: { close(): void }) => React.ReactNode);
   align?: "left" | "right";
   label: string;
 }) {
@@ -325,7 +344,7 @@ export function Popover({
             style={{ top: pos.top, left: pos.left, width: 268 }}
             className="animate-pop fixed z-[85] rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] p-3.5 shadow-2xl shadow-black/60"
           >
-            {children}
+            {typeof children === "function" ? children({ close: () => setOpen(false) }) : children}
           </div>,
           document.body,
         )}

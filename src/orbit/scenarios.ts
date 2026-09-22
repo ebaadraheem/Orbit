@@ -22,7 +22,6 @@ export interface Scenario {
   id: string;
   /** What the user says to trigger it. Also used as a suggested prompt. */
   utterance: string;
-  /** Short label for the command palette and empty state. */
   label: string;
   match: RegExp;
   title: string;
@@ -64,7 +63,6 @@ const state = (s: OrbitState): OrbitEvent => ({
   payload: { state: s },
 });
 
-/** Add a step, then mark it done a beat later. */
 function run(
   taskId: string,
   label: string,

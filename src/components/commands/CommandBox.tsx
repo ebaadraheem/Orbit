@@ -159,7 +159,6 @@ export function CommandPalette({
   const choose = (command?: Command) => {
     if (!command) return;
     onClose();
-    // Let the dialog unmount before the action changes the view underneath.
     requestAnimationFrame(command.run);
   };
 

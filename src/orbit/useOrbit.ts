@@ -9,7 +9,6 @@ import type { InputChannel, OrbitSession } from "../types/orbit";
 
 export interface OrbitApi {
   session: OrbitSession;
-  /** True while Orbit is doing anything the user could interrupt. */
   busy: boolean;
   continuous: boolean;
   setContinuous(on: boolean): void;

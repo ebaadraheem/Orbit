@@ -1,7 +1,7 @@
 import { PanelLeft, PanelRight, Search, Settings as SettingsIcon } from "lucide-react";
 import type { OrbitState, PrivacyMode } from "../../types/orbit";
-import { StatusIndicator } from "../orbit/StatusIndicator";
-import { StateBadge } from "../orbit/Stage";
+import { StatusIndicator } from "./LLMModelStatus";
+import { StateBadge } from "../agent/Stage";
 import { IconButton } from "../ui";
 
 interface Props {
@@ -15,7 +15,7 @@ interface Props {
   onToggleSidebar(): void;
   onToggleRail(): void;
   onSearch(): void;
-  onSettings(): void;
+  // onSettings(): void;
   onPrivacy(): void;
 }
 
@@ -30,7 +30,7 @@ export function Header({
   onToggleSidebar,
   onToggleRail,
   onSearch,
-  onSettings,
+  // onSettings,
   onPrivacy,
 }: Props) {
   return (
@@ -38,6 +38,7 @@ export function Header({
       <IconButton
         label={sidebarOpen ? "Hide sessions" : "Show sessions"}
         onClick={onToggleSidebar}
+        active={sidebarOpen}
         size="sm"
       >
         <PanelLeft size={15} />
@@ -60,16 +61,16 @@ export function Header({
         onOpenPrivacy={onPrivacy}
       />
       <IconButton
-        label={railOpen ? "Hide computer activity" : "Show computer activity"}
+        label={railOpen ? "Hide activity" : "Show activity"}
         onClick={onToggleRail}
         active={railOpen}
         size="sm"
       >
         <PanelRight size={15} />
       </IconButton>
-      <IconButton label="Settings" onClick={onSettings} size="sm">
+      {/* <IconButton label="Settings" onClick={onSettings} size="sm">
         <SettingsIcon size={15} />
-      </IconButton>
+      </IconButton> */}
     </header>
   );
 }

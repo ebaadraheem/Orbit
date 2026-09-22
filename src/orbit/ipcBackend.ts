@@ -24,7 +24,6 @@ export function createIpcBackend (): OrbitBackend {
 
   if (bridge) {
     detach = bridge.onEvent(payload => {
-      // The agent is trusted, but a malformed frame shouldn't take the UI down.
       if (!payload || typeof payload !== 'object' || !('type' in payload))
         return
       listeners.forEach(listener => listener(payload as OrbitEvent))

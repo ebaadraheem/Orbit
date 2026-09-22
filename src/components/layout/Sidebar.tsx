@@ -1,6 +1,6 @@
 import { Plus, Search, Settings as SettingsIcon, Shield } from "lucide-react";
 import type { Conversation, OrbitState } from "../../types/orbit";
-import { OrbitCore } from "../orbit/OrbitCore";
+import { OrbitLogo } from "../agent/OrbitLogo";
 import { IconButton, KeyCap, cn } from "../ui";
 
 interface Props {
@@ -35,7 +35,7 @@ export function Sidebar({
         className="flex w-[56px] shrink-0 flex-col items-center gap-1 border-r border-[var(--line)] bg-[var(--shell)] py-3"
       >
         <div className="mb-2 flex h-8 w-8 items-center justify-center">
-          <OrbitCore state={state} size={26} />
+          <OrbitLogo state={state} size={26} />
         </div>
         <IconButton label="New task" onClick={onNew}>
           <Plus size={16} />
@@ -60,7 +60,7 @@ export function Sidebar({
       className="flex w-[240px] shrink-0 flex-col border-r border-[var(--line)] bg-[var(--shell)]"
     >
       <div className="flex items-center gap-2.5 px-4 pb-3 pt-3">
-        <OrbitCore state={state} size={28} />
+        <OrbitLogo state={state} size={28} />
         <div className="leading-tight">
           <p className="text-[13.5px] font-medium tracking-[-0.01em] text-[var(--text)]">Orbit</p>
           <p className="text-[11px] text-[var(--text-mute)]">Private computer assistant</p>

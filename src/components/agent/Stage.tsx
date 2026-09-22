@@ -1,13 +1,12 @@
 import { Square } from "lucide-react";
 import type { OrbitState } from "../../types/orbit";
-import { OrbitCore, stateColor, stateLabel } from "./OrbitCore";
+import { OrbitLogo, stateColor, stateLabel } from "./OrbitLogo";
 import { Transcript } from "./Transcript";
 import { Button, cn } from "../ui";
 
 interface Props {
   state: OrbitState;
   transcript: string;
-  /** Compact once the session has content, so the conversation gets the room. */
   compact: boolean;
   busy: boolean;
   onStop(): void;
@@ -27,7 +26,7 @@ export function Stage({ state, transcript, compact, busy, onStop }: Props) {
   if (compact) {
     return (
       <div className="flex items-center gap-3 border-b border-[var(--line)] bg-[var(--void)]/85 px-6 py-2.5 backdrop-blur">
-        <OrbitCore state={state} size={34} />
+        <OrbitLogo state={state} size={34} />
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline gap-2">
             <span
@@ -50,7 +49,7 @@ export function Stage({ state, transcript, compact, busy, onStop }: Props) {
 
   return (
     <div className="flex flex-col items-center px-6 pb-2 pt-12">
-      <OrbitCore state={state} size={132} />
+      <OrbitLogo state={state} size={132} />
       <h1
         className="mt-5 text-[19px] font-medium tracking-[-0.01em] transition-colors duration-300"
         style={{ color: stateColor[state] }}

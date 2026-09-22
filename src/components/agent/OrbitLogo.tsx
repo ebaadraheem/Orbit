@@ -24,7 +24,6 @@ export const stateLabel: Record<OrbitState, string> = {
 
 interface Props {
   state: OrbitState;
-  /** Rendered pixel size. The geometry is a 200-unit square. */
   size?: number;
 }
 
@@ -38,7 +37,7 @@ interface Props {
  *   waiting   an amber core, ring held
  *   error     the ring broken
  */
-export function OrbitCore({ state, size = 120 }: Props) {
+export function OrbitLogo({ state, size = 120 }: Props) {
   const id = useId().replace(/:/g, "");
   const still = useReducedMotion();
   const colour = stateColor[state];
@@ -67,7 +66,6 @@ export function OrbitCore({ state, size = 120 }: Props) {
         </radialGradient>
       </defs>
 
-      {/* A single soft field of light, not a neon bloom. */}
       <circle cx="100" cy="100" r="74" fill={`url(#${id}-glow)`} />
 
       {/* Breathing halo, listening only. */}

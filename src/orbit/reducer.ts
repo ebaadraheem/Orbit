@@ -80,7 +80,6 @@ export function reduce (
       return {
         ...session,
         state: event.payload.state,
-        // Leaving listening always clears the interim transcript.
         transcript:
           event.payload.state === 'listening' ? session.transcript : ''
       }
