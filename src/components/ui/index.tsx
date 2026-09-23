@@ -4,67 +4,73 @@ import React, {
   useLayoutEffect,
   useRef,
   useState,
-  type ReactNode,
-} from "react";
-import { createPortal } from "react-dom";
+  type ReactNode
+} from 'react'
+import { createPortal } from 'react-dom'
 
-export function cn(...parts: Array<string | false | null | undefined>): string {
-  return parts.filter(Boolean).join(" ");
+export function cn (...parts: Array<string | false | null | undefined>): string {
+  return parts.filter(Boolean).join(' ')
 }
 
 /* ---------------------------------------------------------------- Button */
 
-type ButtonVariant = "primary" | "neutral" | "ghost" | "danger";
+type ButtonVariant = 'primary' | 'neutral' | 'ghost' | 'danger'
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: ButtonVariant;
-  size?: "sm" | "md";
-  icon?: ReactNode;
+  variant?: ButtonVariant
+  size?: 'sm' | 'md'
+  icon?: ReactNode
 }
 
 const variants: Record<ButtonVariant, string> = {
   primary:
-    "bg-[var(--accent)] text-[#0d1512] hover:bg-[#9fc7b6] active:bg-[#84ad9d] font-medium",
+    'bg-[var(--accent)] text-[#0d1512] hover:bg-[#9fc7b6] active:bg-[#84ad9d] font-medium',
   neutral:
-    "bg-[var(--raised)] text-[var(--text)] border border-[var(--line-strong)] hover:bg-[#252931] hover:border-[#3a3f48]",
-  ghost: "text-[var(--text-dim)] hover:text-[var(--text)] hover:bg-[var(--raised)]",
-  danger: "bg-[var(--clay)] text-[#1a0f0d] hover:bg-[#d48b7d] font-medium",
-};
+    'bg-[var(--raised)] text-[var(--text)] border border-[var(--line-strong)] hover:bg-[#252931] hover:border-[#3a3f48]',
+  ghost:
+    'text-[var(--text-dim)] hover:text-[var(--text)] hover:bg-[var(--raised)]',
+  danger: 'bg-[var(--clay)] text-[#1a0f0d] hover:bg-[#d48b7d] font-medium'
+}
 
-export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
-  { variant = "neutral", size = "md", icon, className, children, ...rest },
-  ref,
-) {
-  return (
-    <button
-      ref={ref}
-      type="button"
-      className={cn(
-        "no-drag inline-flex items-center justify-center gap-2 rounded-lg transition-colors duration-150 disabled:opacity-40 disabled:pointer-events-none",
-        size === "sm" ? "h-7 px-2.5 text-[12.5px]" : "h-9 px-3.5 text-[13.5px]",
-        variants[variant],
-        className,
-      )}
-      {...rest}
-    >
-      {icon}
-      {children}
-    </button>
-  );
-});
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  function Button (
+    { variant = 'neutral', size = 'md', icon, className, children, ...rest },
+    ref
+  ) {
+    return (
+      <button
+        ref={ref}
+        type='button'
+        className={cn(
+          'no-drag inline-flex items-center justify-center gap-2 rounded-lg transition-colors duration-150 disabled:opacity-40 disabled:pointer-events-none',
+          size === 'sm'
+            ? 'h-7 px-2.5 text-[12.5px]'
+            : 'h-9 px-3.5 text-[13.5px]',
+          variants[variant],
+          className
+        )}
+        {...rest}
+      >
+        {icon}
+        {children}
+      </button>
+    )
+  }
+)
 
 /* ------------------------------------------------------------ IconButton */
 
-interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  label: string;
-  active?: boolean;
-  size?: "sm" | "md";
+interface IconButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  label: string
+  active?: boolean
+  size?: 'sm' | 'md'
 }
 
-export function IconButton({
+export function IconButton ({
   label,
   active,
-  size = "md",
+  size = 'md',
   className,
   children,
   ...rest
@@ -72,111 +78,118 @@ export function IconButton({
   return (
     <Tooltip content={label}>
       <button
-        type="button"
+        type='button'
         aria-label={label}
         aria-pressed={active}
         className={cn(
-          "no-drag inline-flex items-center justify-center rounded-md transition-colors duration-150 focus:outline-none",
-          size === "sm" ? "h-7 w-7" : "h-8 w-8",
+          'no-drag inline-flex items-center justify-center rounded-md transition-colors duration-150 focus:outline-none',
+          size === 'sm' ? 'h-7 w-7' : 'h-8 w-8',
           active
-            ? "bg-[var(--raised)] text-[var(--accent)]"
-            : "text-[var(--text-mute)] hover:text-[var(--text)] hover:bg-[var(--raised)]",
-          className,
+            ? 'bg-[var(--raised)] text-[var(--accent)]'
+            : 'text-[var(--text-mute)] hover:text-[var(--text)] hover:bg-[var(--raised)]',
+          className
         )}
         {...rest}
       >
         {children}
       </button>
     </Tooltip>
-  );
+  )
 }
 
 /* ---------------------------------------------------------------- Toggle */
 
 interface ToggleProps {
-  checked: boolean;
-  onChange(value: boolean): void;
-  label: string;
-  disabled?: boolean;
+  checked: boolean
+  onChange(value: boolean): void
+  label: string
+  disabled?: boolean
 }
 
-export function Toggle({ checked, onChange, label, disabled }: ToggleProps) {
+export function Toggle ({ checked, onChange, label, disabled }: ToggleProps) {
   return (
     <button
-      type="button"
-      role="switch"
+      type='button'
+      role='switch'
       aria-checked={checked}
       aria-label={label}
       disabled={disabled}
       onClick={() => onChange(!checked)}
       className={cn(
-        "no-drag relative h-[20px] w-[34px] shrink-0 rounded-full transition-colors duration-200 disabled:opacity-40",
-        checked ? "bg-[var(--accent-dim)]" : "bg-[#2b2f36]",
+        'no-drag relative h-[20px] w-[34px] shrink-0 rounded-full transition-colors duration-200 disabled:opacity-40',
+        checked ? 'bg-[var(--accent-dim)]' : 'bg-[#2b2f36]'
       )}
     >
       <span
         className={cn(
-          "absolute top-[3px] h-[14px] w-[14px] rounded-full transition-all duration-200",
-          checked ? "left-[17px] bg-[var(--accent)]" : "left-[3px] bg-[#767d87]",
+          'absolute top-[3px] h-[14px] w-[14px] rounded-full transition-all duration-200',
+          checked ? 'left-[17px] bg-[var(--accent)]' : 'left-[3px] bg-[#767d87]'
         )}
       />
     </button>
-  );
+  )
 }
 
 /* --------------------------------------------------------------- Tooltip */
 
-
-export function Tooltip({
+export function Tooltip ({
   content,
   children,
-  side = "bottom",
+  side = 'bottom'
 }: {
-  content: string;
-  children: React.ReactElement;
-  side?: "bottom" | "top" | "right";
+  content: string
+  children: React.ReactElement
+  side?: 'bottom' | 'top' | 'right'
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false)
 
-  const [pos, setPos] = useState({ top: 0, left: 0, transform: "translateX(-50%)" });
-  const ref = useRef<HTMLSpanElement>(null);
+  const [pos, setPos] = useState({
+    top: 0,
+    left: 0,
+    transform: 'translateX(-50%)'
+  })
+  const ref = useRef<HTMLSpanElement>(null)
 
   const show = useCallback(() => {
-    const el = ref.current?.firstElementChild;
-    if (!el) return;
-    const r = el.getBoundingClientRect();
+    const el = ref.current?.firstElementChild
+    if (!el) return
+    const r = el.getBoundingClientRect()
 
     // Default centering logic
-    let left = r.left + r.width / 2;
-    let transform = "translateX(-50%)";
+    let left = r.left + r.width / 2
+    let transform = 'translateX(-50%)'
 
-    if (side !== "right") {
+    if (side !== 'right') {
       if (left > window.innerWidth - 100) {
         // If too close to the right edge, pin the tooltip's right edge to the button's right edge
-        left = r.right;
-        transform = "translateX(-100%)";
+        left = r.right
+        transform = 'translateX(-100%)'
       } else if (left < 100) {
         // If too close to the left edge, pin the tooltip's left edge to the button's left edge
-        left = r.left;
-        transform = "none";
+        left = r.left
+        transform = 'none'
       }
     }
 
     const offsets = {
       bottom: { top: r.bottom + 8, left, transform },
       top: { top: r.top - 30, left, transform },
-      right: { top: r.top + r.height / 2 - 12, left: r.right + 10, transform: "none" },
-    };
-    
-    setPos(offsets[side]);
-    setOpen(true);
-  }, [side]);
+      right: {
+        top: r.top + r.height / 2 - 12,
+        left: r.right + 10,
+        transform: 'none'
+      }
+    }
+
+    setPos(offsets[side])
+    setOpen(true)
+  }, [side])
 
   return (
     <>
       <span
         ref={ref}
-        className="contents"
+        className='contents'
         onMouseEnter={show}
         onMouseLeave={() => setOpen(false)}
         onFocus={show}
@@ -187,177 +200,189 @@ export function Tooltip({
       {open &&
         createPortal(
           <div
-            role="tooltip"
+            role='tooltip'
             style={{
               top: pos.top,
               left: pos.left,
-              transform: pos.transform, 
+              transform: pos.transform
             }}
-            className="animate-fade pointer-events-none fixed z-[90] w-max max-w-[250px] rounded-md border border-[var(--line-strong)] bg-[#000] px-2 py-1 text-[11.5px] text-[var(--text-dim)] shadow-lg"
+            className='animate-fade pointer-events-none fixed z-[90] w-max max-w-[250px] rounded-md border border-[var(--line-strong)] bg-[#000] px-2 py-1 text-[11.5px] text-[var(--text-dim)] shadow-lg'
           >
             {content}
           </div>,
-          document.body,
+          document.body
         )}
     </>
-  );
+  )
 }
 
 /* ----------------------------------------------------------------- Modal */
 
-export function Modal({
+export function Modal ({
   open,
   onClose,
   labelledBy,
   children,
-  align = "center",
-  className,
+  align = 'center',
+  className
 }: {
-  open: boolean;
-  onClose(): void;
-  labelledBy?: string;
-  children: ReactNode;
-  align?: "center" | "top";
-  className?: string;
+  open: boolean
+  onClose(): void
+  labelledBy?: string
+  children: ReactNode
+  align?: 'center' | 'top'
+  className?: string
 }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null)
 
+  // Focus trap and keyboard navigation (Kept exactly as you had it)
   useEffect(() => {
-    if (!open) return;
-    const previous = document.activeElement as HTMLElement | null;
-    requestAnimationFrame(() => ref.current?.focus());
+    if (!open) return
+    const previous = document.activeElement as HTMLElement | null
+    requestAnimationFrame(() => ref.current?.focus())
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        e.stopPropagation();
-        onClose();
+      if (e.key === 'Escape') {
+        e.stopPropagation()
+        onClose()
       }
-      if (e.key !== "Tab" || !ref.current) return;
+      if (e.key !== 'Tab' || !ref.current) return
       const focusable = ref.current.querySelectorAll<HTMLElement>(
-        'button:not([disabled]), [href], input, textarea, select, [tabindex]:not([tabindex="-1"])',
-      );
-      if (!focusable.length) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
+        'button:not([disabled]), [href], input, textarea, select, [tabindex]:not([tabindex="-1"])'
+      )
+      if (!focusable.length) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
       if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault();
-        last.focus();
+        e.preventDefault()
+        last.focus()
       } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
-        first.focus();
+        e.preventDefault()
+        first.focus()
       }
-    };
-    document.addEventListener("keydown", onKey, true);
+    }
+    document.addEventListener('keydown', onKey, true)
     return () => {
-      document.removeEventListener("keydown", onKey, true);
-      previous?.focus?.();
-    };
-  }, [open, onClose]);
+      document.removeEventListener('keydown', onKey, true)
+      previous?.focus?.()
+    }
+  }, [open, onClose])
 
-  if (!open) return null;
+  // REMOVED: if (!open) return null;
 
   return createPortal(
     <div
       className={cn(
-        "fixed inset-0 z-[80] flex justify-center bg-black/55 px-6",
-        align === "center" ? "items-center" : "items-start pt-[14vh]",
+        'fixed inset-0 z-[80] flex justify-center px-6 transition-all duration-200 ease-out',
+        align === 'center' ? 'items-center' : 'items-start pt-[14vh]',
+        // Fade out the backdrop and disable clicks when closed
+        open
+          ? 'bg-black/55 opacity-100 pointer-events-auto'
+          : 'bg-transparent opacity-0 pointer-events-none delay-75'
       )}
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
+      onMouseDown={e => {
+        if (e.target === e.currentTarget) onClose()
       }}
     >
       <div
         ref={ref}
-        role="dialog"
-        aria-modal="true"
+        role='dialog'
+        aria-modal={open ? 'true' : 'false'}
+        aria-hidden={!open} // Hides it from screen readers when closed
         aria-labelledby={labelledBy}
         tabIndex={-1}
         className={cn(
-          "animate-pop w-full rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] shadow-2xl shadow-black/60",
-          className ?? "max-w-lg",
+          'w-full rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] shadow-2xl shadow-black/60',
+          'transition-all duration-200 ease-out',
+          // Slide and scale down gracefully instead of vanishing
+          open
+            ? 'scale-100 opacity-100 translate-y-0'
+            : 'scale-95 opacity-0 -translate-y-2',
+          className ?? 'max-w-lg'
         )}
       >
         {children}
       </div>
     </div>,
-    document.body,
-  );
+    document.body
+  )
 }
-
 /* --------------------------------------------------------------- Popover */
 
-export function Popover({
+export function Popover ({
   trigger,
   children,
-  align = "right",
-  label,
+  align = 'right',
+  label
 }: {
-  trigger: (props: { open: boolean; toggle(): void }) => React.ReactNode;
-  children: React.ReactNode | ((props: { close(): void }) => React.ReactNode);
-  align?: "left" | "right";
-  label: string;
+  trigger: (props: { open: boolean; toggle(): void }) => React.ReactNode
+  children: React.ReactNode | ((props: { close(): void }) => React.ReactNode)
+  align?: 'left' | 'right'
+  label: string
 }) {
-  const [open, setOpen] = useState(false);
-  const [pos, setPos] = useState({ top: 0, left: 0 });
-  const anchor = useRef<HTMLDivElement>(null);
-  const panel = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false)
+  const [pos, setPos] = useState({ top: 0, left: 0 })
+  const anchor = useRef<HTMLDivElement>(null)
+  const panel = useRef<HTMLDivElement>(null)
 
   useLayoutEffect(() => {
-    if (!open || !anchor.current) return;
-    const r = anchor.current.getBoundingClientRect();
-    const width = 268;
+    if (!open || !anchor.current) return
+    const r = anchor.current.getBoundingClientRect()
+    const width = 268
     setPos({
       top: r.bottom + 8,
-      left: align === "right" ? Math.max(12, r.right - width) : r.left,
-    });
-  }, [open, align]);
+      left: align === 'right' ? Math.max(12, r.right - width) : r.left
+    })
+  }, [open, align])
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) return
     const onDown = (e: MouseEvent) => {
       if (
         !panel.current?.contains(e.target as Node) &&
         !anchor.current?.contains(e.target as Node)
       ) {
-        setOpen(false);
+        setOpen(false)
       }
-    };
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
-    document.addEventListener("mousedown", onDown);
-    document.addEventListener("keydown", onKey);
+    }
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false)
+    document.addEventListener('mousedown', onDown)
+    document.addEventListener('keydown', onKey)
     return () => {
-      document.removeEventListener("mousedown", onDown);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [open]);
+      document.removeEventListener('mousedown', onDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open])
 
   return (
     <>
-      <div ref={anchor} className="contents">
-        {trigger({ open, toggle: () => setOpen((v) => !v) })}
+      <div ref={anchor} className='contents'>
+        {trigger({ open, toggle: () => setOpen(v => !v) })}
       </div>
       {open &&
         createPortal(
           <div
             ref={panel}
-            role="dialog"
+            role='dialog'
             aria-label={label}
             style={{ top: pos.top, left: pos.left, width: 268 }}
-            className="animate-pop fixed z-[85] rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] p-3.5 shadow-2xl shadow-black/60"
+            className='animate-pop fixed z-[85] rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] p-3.5 shadow-2xl shadow-black/60'
           >
-            {typeof children === "function" ? children({ close: () => setOpen(false) }) : children}
+            {typeof children === 'function'
+              ? children({ close: () => setOpen(false) })
+              : children}
           </div>,
-          document.body,
+          document.body
         )}
     </>
-  );
+  )
 }
 
 /* ---------------------------------------------------------------- KeyCap */
 
-export function KeyCap({ children }: { children: ReactNode }) {
+export function KeyCap ({ children }: { children: ReactNode }) {
   return (
-    <kbd className="rounded border border-[var(--line-strong)] bg-[#0f1114] px-1.5 py-[1px] font-mono text-[10.5px] leading-[16px] text-[var(--text-mute)]">
+    <kbd className='rounded border border-[var(--line-strong)] bg-[#0f1114] px-1.5 py-[1px] font-mono text-[10.5px] leading-[16px] text-[var(--text-mute)]'>
       {children}
     </kbd>
-  );
+  )
 }

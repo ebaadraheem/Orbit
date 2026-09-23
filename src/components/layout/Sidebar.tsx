@@ -80,7 +80,7 @@ export function Sidebar({
           <button
             type="button"
             onClick={onNew}
-            className="no-drag flex w-full items-center gap-2 rounded-lg border border-[var(--line-strong)] bg-[var(--raised)] px-2.5 py-1.5 text-[13px] text-[var(--text)] transition-colors duration-150 hover:border-[#3a3f48] hover:bg-[#252931]"
+            className="no-drag focus:outline-none flex w-full items-center gap-2 rounded-lg border border-[var(--line-strong)] bg-[var(--raised)] px-2.5 py-1.5 text-[13px] text-[var(--text)] transition-colors duration-150 hover:border-[#3a3f48] hover:bg-[#252931]"
           >
             <Plus size={14} className="text-[var(--accent)]" />
             New task
@@ -88,7 +88,7 @@ export function Sidebar({
           <button
             type="button"
             onClick={onSearch}
-            className="no-drag flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-[13px] text-[var(--text-mute)] transition-colors duration-150 hover:bg-[var(--raised)] hover:text-[var(--text-dim)]"
+            className="no-drag focus:outline-none flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-[13px] text-[var(--text-mute)] transition-colors duration-150 hover:bg-[var(--raised)] hover:text-[var(--text-dim)]"
           >
             <Search size={14} />
             Search
@@ -114,7 +114,7 @@ export function Sidebar({
                         onClick={() => onSelect(conversation.id)}
                         aria-current={activeId === conversation.id ? "true" : undefined}
                         className={cn(
-                          "no-drag group relative flex w-full flex-col items-start rounded-md px-2.5 py-[7px] text-left transition-colors duration-150",
+                          "no-drag group relative flex focus:outline-none w-full flex-col items-start rounded-md px-2.5 py-[7px] text-left transition-colors duration-150",
                           activeId === conversation.id
                             ? "bg-[var(--raised)]"
                             : "hover:bg-[#1b1e23]",
