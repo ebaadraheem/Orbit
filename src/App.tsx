@@ -249,14 +249,13 @@ export default function App () {
             />
           </main>
 
-          {railOpen && (
-            <ComputerPanel
-              computer={session.computer}
-              activity={session.activityFeed}
-              history={session.history}
-              onScreenAwareness={setScreenAwareness}
-            />
-          )}
+          <ComputerPanel
+            open={railOpen}
+            computer={session.computer}
+            activity={session.activityFeed}
+            history={session.history}
+            onScreenAwareness={setScreenAwareness}
+          />
         </div>
       )}
 
