@@ -1,0 +1,23 @@
+# Core: agent, server, database
+langgraph>=1.2,<2.0
+langgraph-checkpoint-sqlite>=3.1,<4.0
+langchain-core>=1.6,<2.0
+langchain-ollama>=1.0
+aiosqlite>=0.20
+
+fastapi>=0.115
+uvicorn[standard]>=0.32
+
+# Tools
+psutil>=6.0            # list_running_apps
+Send2Trash>=1.8         # move_to_trash (recoverable delete)
+
+# Voice — install these once you're ready to test the mic/speaker path.
+# Everything above works and the app runs without these; voice/*.py imports
+# them lazily so a missing package only breaks the one feature that needs
+# it, not the whole backend. See README.md > "Voice setup" before installing.
+# sounddevice>=0.5        # mic capture (needs PortAudio; bundled in the wheel on Windows/macOS)
+# numpy>=1.26
+# openwakeword>=0.6       # wake-word detection ("Hey Jarvis" by default)
+# faster-whisper>=1.0     # local speech-to-text
+# pyttsx3>=2.90           # local text-to-speech (swap for Piper for a better voice — see tts.py)
