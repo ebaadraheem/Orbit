@@ -1,7 +1,7 @@
 """
 The tool registry: every tool the agent can call, plus the metadata that
 maps a tool name back to the ActivityType the frontend uses to icon it in
-the Computer Activity rail (see src/types/orbit.ts: ActivityType).
+the Computer Activity rail.
 """
 from __future__ import annotations
 

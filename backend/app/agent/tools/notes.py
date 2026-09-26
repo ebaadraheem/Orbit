@@ -1,9 +1,5 @@
 """
-A single running notes file, append-only. Deliberately simple: one Markdown
-file at ~/.orbit/notes.md rather than trying to integrate with a specific
-notes app, since which app that is varies per person. Point Obsidian,
-Notion's local sync, or anything else at this file if you want it to show
-up elsewhere.
+A single running notes file, append-only.
 """
 from __future__ import annotations
 

@@ -1,8 +1,5 @@
 """
-Shell access. This is the highest-risk tool in the registry — see
-`permissions.classify`, which always routes it through a confirmation and
-denies it outright unless Settings > Computer control > Terminal commands is
-on.
+Shell access. This is the highest-risk tool in the registry.
 """
 from __future__ import annotations
 

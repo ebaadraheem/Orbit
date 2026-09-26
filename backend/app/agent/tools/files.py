@@ -1,10 +1,7 @@
 """
 File-system tools.
-
-Every function here is deliberately plain Python — no shelling out where the
-standard library can do it — so behaviour is the same on Windows, macOS and
-Linux wherever that's feasible, and clearly marked where it isn't.
 """
+
 from __future__ import annotations
 
 import os
@@ -19,14 +16,18 @@ from langchain_core.tools import tool
 def _common_roots() -> list[Path]:
     home = Path.home()
     candidates = [
-        home / "Documents", home / "Downloads", home / "Desktop",
-        home / "OneDrive" / "Documents",  # common on Windows with OneDrive backup
+        home / "Documents",
+        home / "Downloads",
+        home / "Desktop",
+        home / "OneDrive" / "Documents",
     ]
     return [p for p in candidates if p.exists()]
 
 
 @tool
-def search_files(query: str, root: str | None = None, max_results: int = 10) -> list[dict[str, Any]]:
+def search_files(
+    query: str, root: str | None = None, max_results: int = 10
+) -> list[dict[str, Any]]:
     """Search for files by name under the given root (or common folders:
     Documents, Downloads, Desktop, if root is not given). Returns paths,
     sizes, and modification times, most recently modified first."""
@@ -37,8 +38,7 @@ def search_files(query: str, root: str | None = None, max_results: int = 10) -> 
     for base in roots:
         if not base.exists():
             continue
-        # Bounded walk: a full-disk search is slow and rarely what "find my
-        # SOP" means. Two levels deep covers the vast majority of real use.
+        # Two levels deep covers the vast majority of real use.
         for dirpath, dirnames, filenames in os.walk(base):
             depth = len(Path(dirpath).relative_to(base).parts)
             if depth >= 3:
@@ -83,7 +83,7 @@ def open_file(path: str) -> str:
         return f"File not found: {path}"
     system = platform.system()
     if system == "Windows":
-        os.startfile(p)  # type: ignore[attr-defined]
+        os.startfile(p)
     elif system == "Darwin":
         subprocess.Popen(["open", str(p)])
     else:
@@ -111,9 +111,9 @@ def move_to_trash(paths: list[str]) -> str:
             continue
         send2trash(str(p))
         moved.append(p.name)
-    parts = []
+    results = []
     if moved:
-        parts.append(f"Moved to Recycle Bin: {', '.join(moved)}")
+        results.append(f"Moved to Recycle Bin: {', '.join(moved)}")
     if missing:
-        parts.append(f"Not found: {', '.join(missing)}")
-    return "; ".join(parts) if parts else "Nothing to do."
+        results.append(f"Not found: {', '.join(missing)}")
+    return "; ".join(results) if results else "Nothing to do."

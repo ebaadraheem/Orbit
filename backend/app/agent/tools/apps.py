@@ -1,11 +1,5 @@
 """
 Application and system tools.
-
-`launch_app` intentionally does not try to be a universal app launcher for
-every possible program — it resolves a small alias table for the
-applications people actually ask assistants to open, plus a fallback that
-tries the name verbatim. Extend `_ALIASES` for anything specific to your
-machine.
 """
 from __future__ import annotations
 
@@ -28,24 +22,25 @@ _ALIASES: dict[str, dict[str, str]] = {
 
 @tool
 def launch_app(name: str) -> str:
-    """Launch a desktop application by name, e.g. 'VS Code', 'Chrome',
-    'File Explorer'. Returns whether it started."""
+    """Launch a desktop application by name in the background. 
+    Returns whether it started."""
     system = platform.system()
     resolved = _ALIASES.get(name.strip().lower(), {}).get(system, name)
 
     try:
         if system == "Windows":
-            # start's first arg is a window title, not the command — an
-            # empty string keeps the actual target as the intended argv[1].
-            subprocess.Popen(["cmd", "/c", "start", "", resolved], shell=False)
+            # /MIN tells Windows to start the application minimized
+            subprocess.Popen(["cmd", "/c", "start", "/MIN", "", resolved], shell=False)
         elif system == "Darwin":
-            subprocess.Popen(["open", "-a", resolved])
+            # -g tells macOS to open the app without bringing it to the foreground
+            subprocess.Popen(["open", "-g", "-a", resolved])
         else:
+            # Linux window management relies on the specific desktop environment,
+            # so there is no universal "background" flag for direct binaries.
             subprocess.Popen([resolved])
     except (FileNotFoundError, OSError) as exc:
         return f"Couldn't find or start '{name}': {exc}"
-    return f"Launched {name}"
-
+    return f"Launched {name} in the background"
 
 @tool
 def list_running_apps() -> list[dict[str, Any]]:
