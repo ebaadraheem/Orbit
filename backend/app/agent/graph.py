@@ -1,43 +1,10 @@
 """
-The agent graph.
-
-Three nodes, looping:
-
-    START -> router -> prepare -> act -> router -> END
-                 │                  │
-                 │ (no tool calls)  └─ more calls queued → prepare again
-                 └─────────────────────────────────────────▶ END
-
-`router` is one LLM call with tools bound; it either answers directly (no
-tool_calls → the loop ends) or asks for one or more tool calls.
-
-`prepare` and `act` are split deliberately, and the split is load-bearing —
-not a style choice. LangGraph re-runs a node's Python code from the top
-every time it resumes past an `interrupt()` inside that node. Any ID
-generated, or any event emitted, *before* the `interrupt()` call would
-therefore fire a second time on resume, with a *different* random ID the
-second time. For a permission prompt that would mean the task panel the
-user was already looking at gets silently abandoned and a second one
-appears after they click Allow.
-
-So: `prepare` generates the step's id, the task's id (if this is the first
-step), and emits the "running" events — then returns normally, with no
-interrupt in it, so its output is durably checkpointed exactly once.
-`act` reads those already-committed ids back out of state, decides whether
-to pause (`interrupt()`), and finishes the step. Everything `act` does
-before its own `interrupt()` call — reading state, calling `classify()` — is
-pure and side-effect-free, so replaying it on resume is harmless.
-
-Progress events are emitted via LangGraph's `get_stream_writer()`, so the
-session layer (`app/session.py`) just forwards whatever the graph writes
-straight to the WebSocket — it doesn't need to know what the graph is doing
-internally.
-
-Permission requests themselves are the one event the graph does not emit.
-A node calls `interrupt(payload)` and stops; the session layer turns that
-payload into a `permission_required` OrbitEvent, exactly once per genuine
-pause, using the ids `prepare` already committed.
+The agent graph. First router node, then prepare node, then act node, then back to router. 
+The router is the only node that calls the LLM; the rest of the graph is pure Python.
+The prepare node runs once per tool call, generates all the ids for that step, and emits the "running" events. 
+The act node runs the tool, emits the "done" events,
 """
+
 from __future__ import annotations
 
 from typing import Any
@@ -86,7 +53,10 @@ def _describe_call(name: str, args: dict[str, Any]) -> tuple[str, str | None]:
         return f"Opening {path.split('/')[-1].split(chr(92))[-1]}", None
     if name == "move_to_trash":
         count = len(args.get("paths", []))
-        return f"Moving {count} file{'s' if count != 1 else ''} to the Recycle Bin", None
+        return (
+            f"Moving {count} file{'s' if count != 1 else ''} to the Recycle Bin",
+            None,
+        )
     if name == "launch_app":
         return f"Launching {args.get('name', 'application')}", None
     if name == "list_running_apps":
@@ -106,11 +76,12 @@ def _last_tool_calling_message(messages: list[Any]) -> AIMessage:
 
 
 def router_node(state: AgentState) -> dict[str, Any]:
+    """The router node is the entry point for the agent. It takes the initial system prompt + the conversation so far and produces a single AIMessage with a batch of tool calls (or none, if the model is done). The
+    graph then runs the tool calls, appends the result to the conversation, and loops back to the router to determine the next step. The router is the only node that calls the LLM;
+    the rest of the graph is pure Python."""
     llm = get_llm().bind_tools(ALL_TOOLS)
     response = llm.invoke([SystemMessage(content=SYSTEM_PROMPT), *state["messages"]])
-    # Reset here, not just at the start of a run: every fresh batch of tool
-    # calls from the router needs act_node counting from 0 again, or it
-    # would pick up where the *previous* batch's index left off.
+    # Reset here for every new LLM call, so the model doesn't see its own previous tool call results
     return {"messages": [response], "step_index": 0}
 
 
@@ -147,8 +118,12 @@ def prepare_node(state: AgentState) -> dict[str, Any]:
     return {
         "task_id": task_id,
         "current_call": {
-            "name": name, "args": args, "call_id": call_id,
-            "step_id": step_id, "label": label, "detail": detail,
+            "name": name,
+            "args": args,
+            "call_id": call_id,
+            "step_id": step_id,
+            "label": label,
+            "detail": detail,
             "activity_kind": activity_kind,
         },
     }
@@ -161,22 +136,31 @@ def act_node(state: AgentState) -> dict[str, Any]:
     writer = get_stream_writer()
     call = state["current_call"]
     name, args, call_id = call["name"], call["args"], call["call_id"]
-    step_id, label, activity_kind = call["step_id"], call["label"], call["activity_kind"]
+    step_id, label, activity_kind = (
+        call["step_id"],
+        call["label"],
+        call["activity_kind"],
+    )
     task_id = state["task_id"]
 
     settings = db.get_settings()
     verdict = classify(name, args, settings)
 
     if verdict.decision == "ask":
-        decision = interrupt({
-            "tool": name, "args": args, "risk": verdict.risk,
-            "title": verdict.title, "summary": verdict.summary,
-            "confirm_label": verdict.confirm_label,
-            "literal": verdict.literal, "consequence": verdict.consequence,
-            # Carried through so the session layer can build the
-            # permission_required event without recomputing anything.
-            "task_id": task_id, "step_id": step_id,
-        })
+        decision = interrupt(
+            {
+                "tool": name,
+                "args": args,
+                "risk": verdict.risk,
+                "title": verdict.title,
+                "summary": verdict.summary,
+                "confirm_label": verdict.confirm_label,
+                "literal": verdict.literal,
+                "consequence": verdict.consequence,
+                "task_id": task_id,
+                "step_id": step_id,
+            }
+        )
         granted = bool(decision.get("granted"))
         if not granted:
             writer(events.task_step(task_id, step_id, label, "skipped"))
@@ -208,7 +192,9 @@ def _run_tool(name: str, args: dict[str, Any]) -> str:
     try:
         result = tool.invoke(args)
         return str(result)
-    except Exception as exc:  # noqa: BLE001 — surfaced to the model as a tool result, not a crash
+    except (
+        Exception
+    ) as exc:  # noqa: BLE001 — surfaced to the model as a tool result, not a crash
         return f"Error running {name}: {exc}"
 
 
@@ -225,7 +211,11 @@ def build_graph(checkpointer):
     graph.add_node("prepare", prepare_node)
     graph.add_node("act", act_node)
     graph.add_edge(START, "router")
-    graph.add_conditional_edges("router", route_after_router, {"prepare": "prepare", END: END})
+    graph.add_conditional_edges(
+        "router", route_after_router, {"prepare": "prepare", END: END}
+    )
     graph.add_edge("prepare", "act")
-    graph.add_conditional_edges("act", route_after_act, {"prepare": "prepare", "router": "router"})
+    graph.add_conditional_edges(
+        "act", route_after_act, {"prepare": "prepare", "router": "router"}
+    )
     return graph.compile(checkpointer=checkpointer)

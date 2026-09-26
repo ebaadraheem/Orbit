@@ -1,17 +1,11 @@
-"""
-The one place the backend talks to a language model.
 
-Uses Ollama so the model runs on this machine — matching the frontend's
-"Local-first mode" promise in Settings > Privacy. Swapping to a hosted model
-later (if the user turns Cloud AI on) means changing this file only; nothing
-in agent/graph.py or the tools imports langchain_ollama directly.
-"""
+""" --- LLM API Object ---"""
+
 from __future__ import annotations
 
 from langchain_ollama import ChatOllama
 
 from .. import config
-
 
 def get_llm(temperature: float | None = None) -> ChatOllama:
     return ChatOllama(
