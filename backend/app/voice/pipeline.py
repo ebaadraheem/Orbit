@@ -1,23 +1,8 @@
 """
-Orchestrates the "Jarvis" behaviour: a background thread listens
+Orchestrates the "Orbit" behaviour: a background thread listens
 continuously for the wake word, records an utterance once it hears one,
 transcribes it locally, hands the text to the `Session`, and speaks the
 reply back — all without the person touching anything.
-
-Threading model: audio capture, wake-word scoring, and STT/TTS are all
-blocking, CPU-bound work, so they run on plain background threads, never on
-the asyncio event loop. Whenever this code needs to talk to the `Session`
-(which is async) it hops back onto the loop with
-`asyncio.run_coroutine_threadsafe`. This file is the only place in the
-backend that does that hop.
-
-One subtlety worth knowing about if you modify this: `Session._finish()`
-(see session.py) emits `state_changed("idle")` immediately after
-`assistant_message` — correct for typed input, where there's nothing to
-wait for. `wrap_emit()` below intercepts exactly that one transition and
-holds it until the spoken reply has actually finished playing, so the
-frontend's orb stays in the "speaking" state for as long as Orbit is
-actually talking, not just for as long as generating the reply took.
 """
 from __future__ import annotations
 
@@ -33,25 +18,18 @@ from .wake_word import WakeWordDetector
 
 EmitFn = Callable[[dict[str, Any]], Awaitable[None]]
 
-# RMS below this (on a 0..1 scale) counts as silence for endpointing an
-# utterance. Quiet-room speech is comfortably above this; typing or fan
-# noise alone should stay under it. Tune per-machine if it cuts people off.
+# RMS below this threshold is considered silence. This is used to detect when the user 
+# has stopped speaking, so Orbit can stop recording and start transcribing. 
 SILENCE_RMS = 0.02
 
-# After Orbit finishes speaking, if continuous listening is on, how long the
-# next utterance can start without repeating the wake word — long enough for
-# a natural follow-up, short enough that background chatter an hour later
-# doesn't accidentally get treated as still-talking-to-Orbit.
+# The number of seconds after a spoken reply during which the always-on
+# listener will accept a new utterance without requiring the wake word.
 CONTINUOUS_WINDOW_SECONDS = 6.0
 
 
 class VoicePipeline:
     def __init__(self, raw_emit: EmitFn):
-        # `session` is supplied via `attach_session()` after construction —
-        # see server.py's connection handler for why: the Session needs
-        # this pipeline's wrapped `emit` before it can be constructed, and
-        # this pipeline needs the Session to submit what it hears, so
-        # neither can fully exist before the other.
+        
         self._session: Any = None
         self._raw_emit = raw_emit
         self._loop = asyncio.get_event_loop()
@@ -78,7 +56,7 @@ class VoicePipeline:
 
     def emit(self) -> EmitFn:
         """The emit function to hand to `Session` instead of the raw
-        websocket sender — see the module docstring for why."""
+        websocket sender."""
         async def wrapped(event: dict[str, Any]) -> None:
             if event["type"] == "assistant_message":
                 self._pending_speech = event["payload"]["text"]

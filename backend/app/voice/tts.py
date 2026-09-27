@@ -41,7 +41,7 @@ def speak(text: str) -> None:
     background thread, never from the asyncio event loop."""
     if not text.strip():
         return
-    with _lock:  # pyttsx3's engine isn't safe to drive from two threads at once
+    with _lock: 
         engine = _ensure_loaded()
         engine.say(text)
         engine.runAndWait()

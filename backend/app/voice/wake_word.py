@@ -14,6 +14,7 @@ or train a custom "Hey Orbit" model with openWakeWord's own training
 notebook if you want the literal name — that's a separate, optional step,
 not required to use this file.
 """
+
 from __future__ import annotations
 
 from .. import config
@@ -22,18 +23,20 @@ from .. import config
 class WakeWordDetector:
     def __init__(self, model_name: str | None = None, threshold: float | None = None):
         self.model_name = model_name or config.WAKE_WORD_MODEL
-        self.threshold = threshold if threshold is not None else config.WAKE_WORD_THRESHOLD
+        self.threshold = (
+            threshold if threshold is not None else config.WAKE_WORD_THRESHOLD
+        )
         self._model = None
 
     def _ensure_loaded(self):
         if self._model is not None:
             return
         from openwakeword.model import Model
+
         self._model = Model(wakeword_models=[self.model_name])
 
     def process(self, samples) -> bool:
-        """Feed one frame of int16 mono samples. Returns True the instant
-        this frame pushes the model's score over the threshold."""
+        """Returns True the instant this frame pushes the model's score over the threshold."""
         self._ensure_loaded()
         scores = self._model.predict(samples)
         for name, score in scores.items():

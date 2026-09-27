@@ -1,12 +1,5 @@
 """
 Microphone capture.
-
-Isolated in its own file, with `sounddevice` imported lazily inside
-functions rather than at module load time, so the rest of the backend
-(server, agent, tools) can still start and be tested even on a machine — or
-a CI box, or this sandbox — that has no audio hardware or PortAudio
-installed yet. The failure shows up only when a voice feature is actually
-used, as a clear error rather than an import crash on startup.
 """
 from __future__ import annotations
 
@@ -24,9 +17,6 @@ class AudioChunk:
 
 
 class Microphone:
-    """A push-style mic stream you can iterate over. Each item is ~30ms of
-    audio, small enough for wake-word models (which expect short frames)
-    and cheap enough to run RMS-based silence detection on every chunk."""
 
     FRAME_MS = 30
 
@@ -40,7 +30,7 @@ class Microphone:
 
         frame_samples = int(config.MIC_SAMPLE_RATE * self.FRAME_MS / 1000)
 
-        def callback(indata, frames, time_info, status):  # noqa: ARG001
+        def callback(indata, frames, time_info, status):  
             mono = indata[:, 0].copy()
             rms = float(np.sqrt(np.mean(mono.astype(np.float32) ** 2)) / 32768.0)
             self._queue.put(AudioChunk(samples=mono, rms=rms))
@@ -60,9 +50,6 @@ class Microphone:
             self._queue.queue.clear()
 
     def frames(self) -> Iterator[AudioChunk]:
-        """Blocks until the next ~30ms frame is available. Runs on the
-        pipeline's dedicated background thread — never call this from the
-        asyncio event loop directly."""
         while self._stream is not None:
             try:
                 yield self._queue.get(timeout=0.5)
