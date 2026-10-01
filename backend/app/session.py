@@ -25,6 +25,8 @@ from .agent.graph import build_graph
 from .events import new_id
 
 EmitFn = Callable[[dict[str, Any]], Awaitable[None]]
+import logging
+log = logging.getLogger("orbit")
 
 
 class Session:
@@ -151,6 +153,7 @@ class Session:
             final_state = (await self._graph.aget_state(self.thread_config)).values
             await self._finish(final_state)
         except Exception as exc:  # noqa: BLE001 — surfaced to the user, not swallowed
+            log.exception("Graph run failed") 
             await self._fail(str(exc))
 
     async def _handle_graph_event(self, event: dict[str, Any]) -> None:

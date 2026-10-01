@@ -11,6 +11,9 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+load_dotenv()
+
 # ---------------------------------------------------------------- Locations
 
 DATA_DIR = Path(os.environ.get("ORBIT_DATA_DIR", Path.home() / ".orbit"))

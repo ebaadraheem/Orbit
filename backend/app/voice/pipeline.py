@@ -133,7 +133,10 @@ class VoicePipeline:
         asyncio.run_coroutine_threadsafe(self._raw_emit(event), self._loop)
 
     async def _speak(self, text: str) -> None:
-        await self._loop.run_in_executor(None, tts.speak, text)
+        try:
+            await self._loop.run_in_executor(None, tts.speak, text)
+        except Exception:
+            pass  # don't let a broken TTS engine block the state machine
         settings = db.get_settings()
         if settings.get("continuous_listening"):
             self._continuous_window_until = time.time() + CONTINUOUS_WINDOW_SECONDS
