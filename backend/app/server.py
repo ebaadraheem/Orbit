@@ -1,16 +1,5 @@
 """
 The WebSocket server Electron connects to.
-
-One socket, two directions:
-  - the backend pushes OrbitEvent JSON objects as they happen
-  - the frontend sends command JSON objects: {"command": "...", "payload": {...}}
-
-This intentionally does not try to support multiple simultaneous frontend
-connections with independent state — Orbit is one assistant for one person
-on one machine. Reconnecting (e.g. after `npm run dev` restarts Electron)
-just gets you a fresh Session; the previous conversation's data is still in
-SQLite, but the live thread starts over. That matches the frontend's own
-"New task" button, which does the same thing.
 """
 from __future__ import annotations
 
@@ -60,7 +49,7 @@ async def ws_endpoint(ws: WebSocket) -> None:
             try:
                 await ws.send_text(json.dumps(event))
             except RuntimeError:
-                pass  # socket already closing
+                pass  
 
     # Session and VoicePipeline each need a reference to the other — the
     # pipeline submits what it hears to the Session, and the Session emits
@@ -73,8 +62,6 @@ async def ws_endpoint(ws: WebSocket) -> None:
 
     settings = db.get_settings()
     if settings.get("auto_listen_on_startup"):
-        # "if configured to auto work this app, it does" — start the
-        # always-listening wake-word loop without waiting for a command.
         asyncio.create_task(voice.start_always_on())
 
     try:
@@ -118,7 +105,7 @@ async def _dispatch(command: str, payload: dict, session: Session, voice: VoiceP
             for key, value in payload.items():
                 db.set_setting(key, value)
             if "continuous_listening" in payload:
-                pass  # read fresh from db each time it matters — see pipeline._speak
+                pass  
             await session._emit({"type": "settings", "payload": db.get_settings()})
         else:
             log.warning("Unknown command: %s", command)

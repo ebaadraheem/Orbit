@@ -4,7 +4,13 @@ const WebSocket = require("ws");
 
 const isDev = process.env.NODE_ENV === "development" || !app.isPackaged;
 
-const WS_URL = process.env.ORBIT_WS_URL || "ws://127.0.0.1:8765/ws";
+function getWsUrl() {
+  const baseUrl = process.env.VITE_BACKEND_URL || "ws://127.0.0.1:8765";
+  const wsBase = baseUrl.replace(/^http:/, "ws:").replace(/^https:/, "wss:");
+  return wsBase.endsWith("/ws") ? wsBase : `${wsBase}/ws`;
+}
+
+const WS_URL = getWsUrl();
 const RECONNECT_DELAY_MS = 2000;
 
 /** @type {BrowserWindow | null} */
@@ -64,6 +70,7 @@ function connectBackend() {
   });
 
   socket.on("message", (data) => {
+    console.log("[orbit] message from backend:", data.toString());
     let event;
     try {
       event = JSON.parse(data.toString());

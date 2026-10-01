@@ -1,20 +1,5 @@
 """
 Orbit's entire persistence layer, in one SQLite file.
-
-Why SQLite instead of a "real" database: Orbit runs on one laptop for one
-person. There is no concurrent-writer problem to solve, no server to run,
-and a single `.db` file is trivial to back up or inspect (`sqlite3
-~/.orbit/orbit.db`). It's also already in the Python standard library —
-zero extra install weight.
-
-Why FTS5 instead of a vector database: for "what did I say about the SOP
-last week", keyword search over a few thousand rows is fast and needs no
-embedding model, no extra service, and no GPU. FTS5 ships inside SQLite
-itself. If you outgrow it — thousands of conversations, or you want
-semantic ("meaning", not keyword) recall — the upgrade path is to swap the
-`memory` module for one backed by `sqlite-vec` (still a single file, no
-server) or Chroma. Nothing else in this backend needs to change; `memory.py`
-is the only file that would.
 """
 from __future__ import annotations
 
@@ -191,7 +176,7 @@ def list_conversations(limit: int = 30) -> list[dict[str, Any]]:
     return [dict(row) for row in rows]
 
 
-# ------------------------------------------------------------ Timeline items
+# ------------------------------------------------------------ Timeline items (Chat history)
 
 def append_timeline_item(conversation_id: str, item: dict[str, Any]) -> None:
     """`item` is a frontend-shaped TimelineItem dict — stored as-is so it can

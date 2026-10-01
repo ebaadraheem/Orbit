@@ -1,11 +1,5 @@
 """
 Long-term memory, backed by SQLite FTS5 (see db.py for why).
-
-This is intentionally small. The agent calls `remember()` when it learns a
-fact worth keeping past the current conversation ("the SOP deadline is March
-3rd"), and `recall()` before answering, to pull anything relevant into
-context. It is not a transcript store — `db.py` already keeps the full
-timeline; this is specifically for compact, reusable facts.
 """
 from __future__ import annotations
 

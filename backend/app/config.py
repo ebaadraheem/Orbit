@@ -19,6 +19,7 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 DB_PATH = DATA_DIR / "orbit.db"
 NOTES_PATH = DATA_DIR / "notes.md"
 LOG_PATH = DATA_DIR / "orbit.log"
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 
 # ------------------------------------------------------------------ Server
 

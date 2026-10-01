@@ -20,7 +20,7 @@ from typing import Any, Awaitable, Callable
 from langchain_core.messages import AIMessage, HumanMessage
 from langgraph.types import Command
 
-from . import db, events, memory
+from . import db, events, longtermmemory
 from .agent.graph import build_graph
 from .events import new_id
 
@@ -204,7 +204,7 @@ class Session:
             # A short factual memory, so a later session can recall this
             # without replaying the whole conversation into context.
             if len(reply) < 240:
-                memory.remember(reply, source=self.conversation_id)
+                longtermmemory.remember(reply, source=self.conversation_id)
         await self._emit(events.state_changed("idle"))
 
     async def _fail(self, detail: str) -> None:

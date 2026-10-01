@@ -3,6 +3,7 @@
 
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { createMockBackend } from "./mockBackend";
+import {createIpcBackend} from "./ipcBackend";
 import { initialSession, reduce } from "./reducer";
 import type { OrbitEvent } from "./events";
 import type { InputChannel, OrbitSession } from "../types/orbit";
@@ -23,7 +24,7 @@ export interface OrbitApi {
 }
 
 export function useOrbit(): OrbitApi {
-  const backend = useMemo(() => createMockBackend(), []);
+  const backend = useMemo(() => createIpcBackend(), []);
   const [session, dispatch] = useReducer(reduce, initialSession);
   const [continuous, setContinuous] = useState(false);
   const previous = useRef(session.state);
